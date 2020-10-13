@@ -1,9 +1,11 @@
+import 'package:book_phone/service/config.dart';
 import 'package:book_phone/service/mylist.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:http/http.dart' as http;
 import 'add_book_phone.dart';
+import 'model/get_all.dart';
 
 void main() {
   runApp(MyApp());
@@ -41,6 +43,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  List<GetBook> lsit_book = [];
+  connect _connect = connect();
+
   Showdialog(id) {
     Navigator.pop(context);
     showCupertinoDialog(
@@ -49,8 +54,13 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text("ท่านต้องการจะลบใช่หรือไม่"),
         actions: [
           CupertinoDialogAction(
-            child: Text("Ok",style: GoogleFonts.niramit(),),
-            onPressed: () {},
+            child: Text(
+              "Ok",
+              style: GoogleFonts.niramit(),
+            ),
+            onPressed: () {
+              delete(id);
+            },
           ),
           CupertinoDialogAction(
             child: Text("Cancel"),
@@ -60,6 +70,27 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
+  }
+
+  Future<void> get_book() async {
+    http.Response response = await _connect.get("get_all");
+    setState(() {
+      lsit_book = getBookFromJson(response.body);
+      print(lsit_book[1].toJson());
+    });
+    //print(response.body);
+  }
+
+  Future delete(id) async {
+    await _connect.delete("delete_book/" + id.toString());
+    await get_book();
+    Navigator.pop(context);
+  }
+
+  @override
+  void initState() {
+    get_book();
+    super.initState();
   }
 
   @override
@@ -76,28 +107,58 @@ class _MyHomePageState extends State<MyHomePage> {
                 context,
                 CupertinoPageRoute(
                   builder: (context) => Add_phone(),
-                )),
+                )).then((value) {
+              setState(() {
+                get_book();
+              });
+            }),
             icon: Icon(Icons.add),
           ),
         ],
       ),
-      body: ListView(
-        children: [
-          my_listname(
-            name: "name",
-            phone: "085-258-5685",
-            edit: () {},
-            delete: () => Showdialog("1"),
-            ontab: () => Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (context) => Add_phone(),
-              ),
-            ),
-          ),
-          line()
-        ],
-      ),
+      body: ListView.builder(
+          itemCount: lsit_book.length,
+          itemBuilder: (context, index) => Column(
+                children: [
+                  my_listname(
+                    name: lsit_book[index].name,
+                    phone: lsit_book[index].tel,
+                    url: "${_connect.url}pic/${lsit_book[index].avatar}",
+                    edit: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => Add_phone(
+                            status: "edit",
+                            data_book: lsit_book[index].toJson(),
+                          ),
+                        ),
+                      ).then((value) {
+                        setState(() {
+                          get_book();
+                        });
+                      });
+                    },
+                    delete: () => Showdialog(lsit_book[index].id),
+                    ontab: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => Add_phone(
+                          status: "show",
+                          data_book: lsit_book[index].toJson(),
+                          disibel: false,
+                        ),
+                      ),
+                    ).then((value) {
+                      setState(() {
+                        get_book();
+                      });
+                    }),
+                  ),
+                  line()
+                ],
+              )),
     );
   }
 
