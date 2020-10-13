@@ -96,6 +96,19 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            UserAccountsDrawerHeader(
+              accountEmail: Text("witawatd81@gmail.com"),
+              accountName: Text("witawatd"),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: Text(
           "รายชื่อ",
