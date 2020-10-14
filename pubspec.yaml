@@ -31,6 +31,9 @@ dependencies:
   google_fonts: ^1.1.0
   http: ^0.12.2
   image_picker: ^0.6.7+11
+  flutter_phone_direct_caller:
+    git:
+      url: https://github.com/yanisalfian/flutter-phone-direct-caller.git
 
 dev_dependencies:
   flutter_test:

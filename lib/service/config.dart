@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class connect {
-    String url = "http://172.17.17.249:3000/";
+    String url = "http://192.168.1.56:3000/";
     var header = {HttpHeaders.contentTypeHeader: "application/json"};
 
   Future<http.Response> get(route) async {
